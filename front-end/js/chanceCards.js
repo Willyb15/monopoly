@@ -1,33 +1,34 @@
 var chanceCards = [
-{name: "go", message: 'Advance to GO! Collect $200!'},
-{name: "illinois", message: 'Advance to Illinois Ave.'},
-{name: "stCharles", message: 'Advance to St. Charles Place.  If you pass GO, collect $200'},
-{name: "school", message: 'Pay School Fees of $75', action: +75},
-{name: "holiday", message: 'Holiday Fund Matures, Collect $100', action: +100}
+{name: "go", message: 'Advance to GO! Collect $200!', image:'go.png'},
+{name: "illinois", message: 'Advance to Illinois Ave.', image:'illinois.png'},
+{name: "stCharles", message: 'Advance to St. Charles Place.  If you pass GO, collect $200', image:'charles.png'},
+{name: "gotojail", message: 'Go to Jail. Do not pass GO.', image: 'gotojail.png'},
+{name: "backThree", message: 'Go back 3 Spaces.', image: 'back.png'}
 ];
 
 var chanceCard = function(player,position){
 	var player = player;
 	var position = position;
-	// var randomChanceCard = chanceCards[Math.floor(Math.random() * 5)];
-	var randomChanceCard = chanceCards[2];
+	var randomChanceCard = chanceCards[Math.floor(Math.random() * 5)];
+	// var randomChanceCard = chanceCards[3];
 
 	if(randomChanceCard.name == "go"){
 		go(player);
 	}
 	if(randomChanceCard.name == "illinois"){
-		illinois(player, position, randomChanceCard);
+		illinois(player);
 	}
 	if(randomChanceCard.name == "stCharles"){
-		stCharles(player, position, randomChanceCard);
+		stCharles(player);
 	}
-	if(randomChanceCard.name == "school"){
-		school(player, position, randomChanceCard);
+	if(randomChanceCard.name == "gotojail"){
+		gotojail(player);
 	}
-	if(randomChanceCard.name == "holiday"){
-		holiday(player, position, randomChanceCard);
+	if(randomChanceCard.name == "backThree"){
+		backThree(player, position);
 	}
 	window.message = randomChanceCard.message;
+	window.chanceImage = randomChanceCard.image;
 }
 
 var go = function(player){
@@ -60,9 +61,22 @@ var stCharles = function(player){
 		}
 	}
 }
-		
+var gotojail = function(player){
+	if(player == 1){
+		window.playerOneInJail = true;
+		movePiece(1, 10);
+	}else if(player == 2){
+		window.playerTwoInJail = true;
+		movePiece(2, 10);
+	}
+}
+var backThree = function(player, position){
+	var player = player;
+	var newPosition = position - 3;
+	movePiece(player,newPosition);
+}	
+
 var movePiece = function(player, position){
-	console.log("weere moving the piece!");
 	if(player == 1){
 		document.getElementById(playerOnePosition).innerHTML = "";
 		window.playerOnePosition = position;
