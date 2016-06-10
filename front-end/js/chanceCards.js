@@ -15,8 +15,8 @@ var chanceCards = [
 var chanceCard = function(player,position){
 	var player = player;
 	var position = position;
-	var randomChanceCard = chanceCards[Math.floor(Math.random() * 9)];
-	// var randomChanceCard = chanceCards[9];
+	// var randomChanceCard = chanceCards[Math.floor(Math.random() * 5)];
+	var randomChanceCard = chanceCards[8];
 
 	if(randomChanceCard.name == "go"){
 		go(player);
@@ -100,7 +100,7 @@ var backThree = function(player, position){
 var boardwalk = function(player,position){
 	if(player == 1){
 		movePiece(1, 39);
-		} 	 
+		}
 	else if (player == 2){
 		movePiece(2, 39);
 		}
