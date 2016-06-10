@@ -71,6 +71,10 @@
 				<div id="purchaseInfo" class="text-center" ng-show="purchase">
 					Player {{whichPlayer}} {{purchaseMessage}} {{cell.name}} for ${{cell.price}}
 				</div>
+				<div id="utilityChanceInfo" class="text-center" ng-show="utilityChanceInfo">
+					Player {{whichPlayer}} must roll dice and pay owner ten times amount thrown.
+					<button ng-click="utilityRoll()">Roll</button>{{diceThrow}}
+				</div> 
 				<div id="rentInfo" class="text-center" ng-show="rent">
 					Player {{whichPlayer}} must pay rent of ${{cell.rent}}
 				</div>
@@ -84,8 +88,8 @@
 
 			<div class="col-sm-5 col-sm-offset-2 text-center">
 				<div ng-show="purchaseButtons">
-					<button class="btn btn-success" ng-click="purchaseProperty()">Purchase</button>
-					<button class="btn btn-danger" ng-click="notPurchase()">Decline</button>
+					<button id="purchaseButtonGreen" class="btn btn-success" ng-click="purchaseProperty()">Purchase</button>
+					<button id="purchaseButtonRed"class="btn btn-danger" ng-click="notPurchase()">Decline</button>
 				</div>
 			</div>
 			<div id="36" class="cell col-sm-1 col-sm-offset-2 thirty-six">

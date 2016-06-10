@@ -48,7 +48,7 @@ myApp.controller('myController',function($scope, $http,$location, $cookies, $sce
 				$scope.message = "Please re-enter password.";
 			}else{
 				$cookies.put('username', $scope.username);
-				$location.path('/start')
+				$location.path('/start');
 			}
 		},function errorCallback(response){
 			console.log("error");
@@ -87,7 +87,7 @@ myApp.controller('myController',function($scope, $http,$location, $cookies, $sce
 myApp.controller('gameController',function($scope, $http,$location){
 	window.playerOnePosition = 0;
 	window.playerTwoPosition = 0;
-	window.playerOneBank = 500;
+	window.playerOneBank = -500;
 	window.playerTwoBank = 500;
 	window.freeParkingBank = 200;
 	window.playerOneInJail = false;
@@ -96,6 +96,7 @@ myApp.controller('gameController',function($scope, $http,$location){
 	window.chestImage = "chest-back.png";
 	window.jailFreeOne = false;
 	window.jailFreeTwo = false;
+	window.utilityChance = false;
 	var onePlayer;
 	var twoPlayer;
 	var playerOneCounter = 1;
@@ -167,7 +168,8 @@ myApp.controller('gameController',function($scope, $http,$location){
 		$scope.playerTwoBank = playerTwoBank;
 	}
 
-	var updatePosition = function(player, diceTotal){
+	window.updatePosition = function(player, diceTotal, utilityChance){
+		var utilityChance = utilityChance;
 		if (player == 1){
 			document.getElementById(playerOnePosition).innerHTML = '';
 			if(playerTwoPosition == playerOnePosition){
@@ -179,7 +181,7 @@ myApp.controller('gameController',function($scope, $http,$location){
 				playerOnePosition -= 40;
 			}
 			document.getElementById(playerOnePosition).innerHTML += "<img src='../css/images/token-ship.png'>";
-			checkCell(1, playerOnePosition);
+			checkCell(1, playerOnePosition, utilityChance);
 		}else{
 			document.getElementById(playerTwoPosition).innerHTML = '';
 			if(playerOnePosition==playerTwoPosition){
@@ -191,7 +193,7 @@ myApp.controller('gameController',function($scope, $http,$location){
 				playerTwoPosition -= 40;
 			}
 			document.getElementById(playerTwoPosition).innerHTML +="<img src='../css/images/token-car.png'>";
-			checkCell(2, playerTwoPosition);
+			checkCell(2, playerTwoPosition, utilityChance);
 		}
 	}
 
@@ -202,6 +204,7 @@ myApp.controller('gameController',function($scope, $http,$location){
 		$scope.playerTwoBank = playerTwoBank;
 		$scope.chanceImage = "chance-back.png";
 		$scope.chestImage = "chest-back.png";
+		$scope.utilityChanceInfo = false;
 
 		var dice1 = Math.floor(Math.random() * 6 + 1);
 		var imageName1 = "d" + dice1 + ".gif";
@@ -211,8 +214,8 @@ myApp.controller('gameController',function($scope, $http,$location){
 		var imageName2 = "d" + dice2 + ".gif";
 	    document.images['dieTwo'].src = "css/images/" + imageName2;
 
-		// var diceTotal = dice1 + dice2;
-		var diceTotal = 7;
+		var diceTotal = dice1 + dice2;
+		// var diceTotal = 3;
 
 		//for development
 		if(playerOneTurn == undefined || playerTwoTurn == undefined){
@@ -235,23 +238,40 @@ myApp.controller('gameController',function($scope, $http,$location){
 	}
 
 	$scope.purchaseProperty = function(){
-		$scope.purchaseMessage = " purchased ";
-		cells[$scope.playerPosition].status = "owned";
-		$scope.purchaseButtons = false;
-		document.getElementById("rollButton").disabled = false;
 		if($scope.whichPlayer == 1){
-			playerOneProperties.push(cells[$scope.playerPosition]);
-			document.getElementById($scope.playerPosition).className += " red";
-			playerOneBank -= cells[$scope.playerPosition].price;
-			$scope.playerOneBank = playerOneBank;
-		}else if($scope.whichPlayer == 2){
-			playerTwoProperties.push(cells[$scope.playerPosition]);
-			document.getElementById($scope.playerPosition).className += " blue";
-			playerTwoBank -= cells[$scope.playerPosition].price;
-			$scope.playerTwoBank = playerTwoBank;
+			if($scope.playerOneBank<cells[$scope.playerPosition].price){
+                document.getElementById("rollButton").disabled = false;
+				$scope.purchaseMessage = "has insufficent funds to";
+				console.log("you dont have enought money to purchase");
+			}else{
+				$scope.purchaseMessage = " purchased ";
+				cells[$scope.playerPosition].status = "owned";
+				$scope.purchaseButtons = false;
+				document.getElementById("rollButton").disabled = false;
+				playerOneProperties.push(cells[$scope.playerPosition]);
+				document.getElementById($scope.playerPosition).className += " red";
+				playerOneBank -= cells[$scope.playerPosition].price;
+				$scope.playerOneBank = playerOneBank;
+			}
+		}
+		if($scope.whichPlayer == 2){
+			if($scope.playerTwoBank<cells[$scope.playerPosition].price){
+				document.getElementById("rollButton").disabled = false;
+				$scope.purchaseMessage = "has insufficent funds to purchse";
+				console.log("you dont have enought money to purchase");
+			}else{
+				$scope.purchaseMessage = " purchased ";
+				cells[$scope.playerPosition].status = "owned";
+				$scope.purchaseButtons = false;
+				document.getElementById("rollButton").disabled = false;
+				playerTwoProperties.push(cells[$scope.playerPosition]);
+				document.getElementById($scope.playerPosition).className += " blue";
+				playerTwoBank -= cells[$scope.playerPosition].price;
+				$scope.playerTwoBank = playerTwoBank;
+			}
 		}
 		checkGroup();
-	}
+	};
 	$scope.notPurchase = function(){
 		$scope.purchase = false;
 		$scope.purchaseButtons = false;
@@ -267,12 +287,14 @@ myApp.controller('gameController',function($scope, $http,$location){
 		}
 	}
 
-	var checkCell = function(player, position){
+	window.checkCell = function(player, position, utilityChance){
 		$scope.rollInfo = true;
 		$scope.playerPosition = position;
+		console.log(position);
 		$scope.whichPlayer = player;
 		$scope.cell = cells[position];
 		if(cells[position].status == "vacant"){
+			// vacantFuntion(player, position);
 			$scope.purchaseMessage = " has the option to purchase ";
 			$scope.purchase = true;
 			$scope.purchaseButtons = true;
@@ -281,15 +303,25 @@ myApp.controller('gameController',function($scope, $http,$location){
 		}else if(cells[position].status == "owned"){
 			$scope.purchase = false;
 			$scope.purchaseButtons = false;
+			
+			if(utilityChance){
+				utilityFunction();
+			}
+			else{
 			$scope.rent = true;
 			payRent(player, position);
+			}
 		}else if(cells[position].status == "public"){
 			$scope.purchase = false;
 			$scope.purchaseButtons = false;
 			$scope.rent = false;
 			specialSpace(player, cells[position]);
 		}
-	}
+	};
+	var utilityFunction = function(){
+		$scope.utilityChanceInfo = true;
+		utilityChance = false;
+	};
 
 	var specialSpace = function(player, position){
 		$scope.cell = position;
@@ -350,7 +382,7 @@ myApp.controller('gameController',function($scope, $http,$location){
 		$scope.freeParkingBank = freeParkingBank;
 		$scope.message = window.message;
 		$scope.specialMessage = true;
-	}
+	};
 		
 
 	var jailFunction = function(player, dice1, dice2, diceTotal){
@@ -407,7 +439,7 @@ myApp.controller('gameController',function($scope, $http,$location){
 				}
 			}
 		}
-	}
+	};
 
 	var freeParking = function(player){
 		if (player == 1){
@@ -417,13 +449,27 @@ myApp.controller('gameController',function($scope, $http,$location){
 		}
 		freeParkingBank = 200;
 		$scope.freeParkingBank = freeParkingBank;
-	}
+	};
 
 	var checkGroup = function(){
 		//loop through playerOneProperties/ playerTwo Properties
 		// to check if player has all spots of same group//
 		//if so, do something
+	};
+$scope.utilityRoll = function(){
+	var diceThrow = (Math.floor(Math.random() * 6 + 1) + Math.floor(Math.random() * 6 + 1));
+	var utilityPaymentTotal = diceThrow * 10;
+	$scope.diceThrow = "You rolled a " + diceThrow + " and must now pay " + utilityPaymentTotal;
+	if(playerOneTurn){
+		playerTwoBank -= utilityPaymentTotal;
+		playerOneBank += utilityPaymentTotal;
+	}else{
+		playerTwoBank += utilityPaymentTotal;
+		playerOneBank -= utilityPaymentTotal;
 	}
+	$scope.playerOneBank = playerOneBank;
+	$scope.playerTwoBank = playerTwoBank;
+};
 
 });
 

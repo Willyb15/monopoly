@@ -14,8 +14,8 @@ var chestCards = [
 var chestCard = function(player, position){
 	var player = player;
 	var position = position;
-	// var randomChestCard = chestCards[Math.floor(Math.random() * 5)];
-	var randomChestCard = chestCards[9];
+	 var randomChestCard = chestCards[Math.floor(Math.random() * 5)];
+	// var randomChestCard = chestCards[9];
 	if(randomChestCard.name == "doctor"){
 		doctor(player);
 	}
